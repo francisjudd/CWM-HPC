@@ -8,7 +8,7 @@ NVCCFLAGS = -O3 -arch=sm_61 --ptxas-options=-v -Xcompiler -Wextra -lineinfo
 
 GCC_OPTS =-O3 -Wall -Wextra $(INC)
 
-EXCFILE = helloworld_scheduling.exe
+EXCFILE = helloworld_scheduling
 
 
 all: clean compile

@@ -8,7 +8,7 @@ NVCCFLAGS = -O3 -arch=sm_61 --ptxas-options=-v -Xcompiler -Wextra -lineinfo
 
 GCC_OPTS =-O3 -Wall -Wextra $(INC)
 
-EXCFILE = vectoradd_threads.exe
+EXCFILE = vectoradd_threads
 
 
 all: clean compile
