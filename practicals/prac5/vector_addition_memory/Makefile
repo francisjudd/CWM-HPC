@@ -8,7 +8,7 @@ NVCCFLAGS = -O3 -arch=sm_61 --ptxas-options=-v -Xcompiler -Wextra -lineinfo
 
 GCC_OPTS =-O3 -Wall -Wextra $(INC)
 
-EXCFILE = vectoradd_memory.exe
+EXCFILE = vectoradd_memory
 
 
 all: clean compile
