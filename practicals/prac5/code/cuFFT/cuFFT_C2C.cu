@@ -65,6 +65,45 @@ void Do_FFT_C2C_forward(cufftComplex *d_fft_output, cufftComplex *d_input_data, 
 void Do_FFT_C2C_inverse_inplace(cufftComplex *d_fft_in_out, int size_of_one_fft, int number_of_ffts){
     //write your function here
 
+	// We first declare cuFFT plan, which we must create before executing any FFT. We also
+        // declare variable 'error' which is used to catch errors.
+        cufftHandle plan;
+        cufftResult error;
+
+        // Here we are creating cuFFT plan, where we state what kind of transform we want.
+        // In this case we are doing transformation from complex numbers to complex numbers.
+        // To tell this to cuFFT we need to pass CUFFT_C2C parameter to the cufftPlan1d.
+        // Parameters we pass to the 'cufftPlan1d' are:
+        // 'plan' - is a variable where cufft stores parameters about fft we want to perform.
+        // 'size_of_one_fft' - is size of one FFT we want to perform
+        // 'type' - we are using CUFFT_C2C, but there are other options. CUFFT_C2R or CUFFT_R2C where R mean real$
+        // 'number_of_ffts' - tells cuFFT how many fft of size 'size_of_one_fft' we want to calculate.
+        //
+	// This plan is independent on any data, provided that data size does not change, we can create one plan
+        // and use it many times
+        error = cufftPlan1d(&plan, size_of_one_fft, CUFFT_C2C, number_of_ffts);
+        if (CUFFT_SUCCESS != error){
+                printf("CUFFT error: Plan creation failed");
+                return;
+        }
+
+	// This calls a function which performs fft on GPU. It is a C wrapper around
+        // GPU kernel. This way user does not need to decide what number of threads
+        // and blocks should be used, cuFFT does it on its own.
+        //
+	// cufftExecC2C is also configurable. We can ask it to perform a forward ffts
+        // by passing parameter CUFFT_FORWARD. This means we are transforming our series
+        // from time-domain to frequency-domain. If we want to perform inverse transformation
+        // (from frequency-domain to time-domain) we need to pass CUFFT_INVERSE.
+	// 
+        // cuFFT can also calculate fft in-place, meaning that input array is used
+        // for output as well.
+        cufftExecC2C(plan, d_fft_in_out, d_fft_in_out, CUFFT_INVERSE);
+
+	// This deallocate resources taken by the cuFFT plan
+        cufftDestroy(plan);
+
+
 }
 
 
