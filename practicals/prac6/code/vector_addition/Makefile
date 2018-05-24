@@ -8,13 +8,13 @@ NVCCFLAGS = -O3 -arch=sm_35 --ptxas-options=-v -Xcompiler -Wextra -lineinfo
 
 GCC_OPTS =-O3 -Wall -Wextra $(INC)
 
-EXCFILE = vectoradd_threads
+EXCFILE = vectoradd
 
 
 all: clean compile
 
 compile: Makefile
-	$(NVCC) -o $(EXCFILE) vectoradd_threads.cu $(LIB) $(NVCCFLAGS) 
+	$(NVCC) -o $(EXCFILE) vectoradd.cu $(LIB) $(NVCCFLAGS) 
 
 clean:	
 	rm -f *.o $(ANALYZE)
