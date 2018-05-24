@@ -39,7 +39,11 @@
 
 //----------------------------------------------------------------------
 
-__global__ hello( void );
+__global__ void hello1( void )
+{
+  int index = blockIdx.x * blockDim.x + threadIdx.x;
+  printf("Hello world from thread %d!\n",index);  
+}
 
 //----------------------------------------------------------------------
 // TASK 2.0: Write a "Hello world" kernel which output "Hello world" but 
@@ -51,7 +55,18 @@ __global__ hello( void );
 
 // write your kernel here
 
+__global__ void hello2( void )
+{
+  printf("T: [%d, %d, %d]\t B: [%d, %d, %d]\t BDim: [%d, %d, %d]\t GDim:[%d, %d, %d]\n", \
+                                                        threadIdx.x, threadIdx.y, threadIdx.z, \
+                                                        blockIdx.x, blockIdx.y, blockIdx.z, \
+                                                        blockDim.x, blockDim.y, blockDim.z, \
+                                                        gridDim.x, gridDim.y, gridDim.z);
+}
+
+
 //----------------------------------------------------------------------
+
 
 
 //----------------------------------------------------------------------
@@ -71,6 +86,8 @@ __global__ hello( void );
 // from 32 threads.
 
 // write your kernel here
+
+
 
 //----------------------------------------------------------------------
 
@@ -100,6 +117,11 @@ int main(void) {
   
   // put your code here
   
+  //dim3 Gd(1, 10, 1);
+  //dim3 Bd(1, 2, 1);
+
+  //hello1<<< Gd, Bd >>>();
+  
   //----------------------------------------------------------------------
 
   //----------------------------------------------------------------------
@@ -117,6 +139,11 @@ int main(void) {
   
   //----------------------------------------------------------------------
   
+  dim3 Gd = (2, 3, 1);
+  dim3 Bd = (2, 2, 3);
+
+  hello2<<< Gd, Bd >>>();
+
   
   //----------------------------------------------------------------------
   // TASK 3.1: execute your "Hello world" kernel from TASK 3.0 on about  
