@@ -1,4 +1,3 @@
-
 /*
 
   integral_omp.c  -- trapezoidal rule function integration: OpenMP version
@@ -9,39 +8,20 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
-# include "omp.h"
+# include <omp.h>
 
-
-// ------------------------------------------------------------------- //
-//                                                                     //
-//     f -- function to integrate                                      //
-//                                                                     //
-// ------------------------------------------------------------------- //
-
-double f (double x) {
-  return 2.0*sqrt(1.0-x*x);
-}
 
 
 // ------------------------------------------------------------------- //
 //                                                                     //
-//     trapInt_OMP -- function for trapezoidal integration             //
-//                    (OpenMP threaded version)                        //
+//                         P R O T O T Y P E S                         //
 //                                                                     //
 // ------------------------------------------------------------------- //
 
-double trapInt_OMP (double a, double b, int N) {
+double f (double x);
 
-  int    n;                      // interval iterator
-  double h;                      // interval length
-  double v;                      // integral value
-  double x;                      // integral variable
+double trapInt_OMP (double a, double b, int N);
 
-  // complete the body of the function
-  // ... //
-
-  return v;
-}
 
 
 // ------------------------------------------------------------------- //
@@ -93,6 +73,56 @@ int main (void) {
   return 0;
 }
 
-/*
-  end
- */
+
+
+// ------------------------------------------------------------------- //
+//                                                                     //
+//     f -- function to integrate                                      //
+//                                                                     //
+// ------------------------------------------------------------------- //
+
+double f (double x) {
+  return 2.0*sqrt(1.0-x*x);
+}
+
+
+
+// ------------------------------------------------------------------- //
+//                                                                     //
+//     trapInt_OMP -- function for trapezoidal integration             //
+//                    (OpenMP threaded version)                        //
+//                                                                     //
+// ------------------------------------------------------------------- //
+
+double trapInt_OMP (double a, double b, int N) {
+
+  int    n;                      // interval iterator
+  double h;                      // interval length
+  double v;                      // integral value
+  double x;                      // integral variable
+
+  //
+  // Complete the body of the program
+  //
+  // interval length
+  h = (b - a) / ((double) N);
+
+  // initial and final point only count with weight half
+  v = (f(a) + f(b)) / 2.0;
+
+  #pragma omp parallel default( none ) private( n, x ) shared( a, h, N ) reduction( +:v )
+    {
+      
+      #pragma omp for
+      // add the inner points
+      for (n=1; n<=N-1; n++) {
+        x = a + n*h;
+        v = v + f(x);
+      }
+    }
+
+  // scale by the interval width
+  v *= h;
+
+  return v;
+}

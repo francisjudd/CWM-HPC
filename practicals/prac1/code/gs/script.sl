@@ -8,6 +8,7 @@
 
 # set name of job
 #SBATCH --job-name gs
+#SBATCH --output Timing
 
 # Use this to set the order and number of vectors
 rm -f in

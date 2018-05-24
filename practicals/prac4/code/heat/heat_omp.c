@@ -19,7 +19,11 @@ int main( void ) {
   double du, du_loc;
   double rms;
 
+  // timing variables
+  double time_start, time_end;
+
   int n, n_time_steps;
+  int num_threads = 0;
   int L;
   int j, t;
 
@@ -78,18 +82,30 @@ int main( void ) {
   u [ n - 1 ] = 0.0;
   uo[ n - 1 ] = 0.0;
 
+  rms = 0.0;
+
+  //
+  // ----- heat calculation
+  //
+  // start time
+  time_start = omp_get_wtime ( );
+
+  
   /* Initial values to be solved on the grid */
   /* ... */
-  for( j = 1; j < n - 1; j++ ){
-    u[ j ] = sin( j * PI / L );
-  }
+#pragma omp parallel default( none ) private( t, j, du_loc ) shared( L, n, n_time_steps, nu, u, uo, du, rms ) reduction( +:num_threads )
+  {
+  num_threads = 1;
+#pragma omp for
+    for( j = 1; j < n - 1; j++ ){
+      u[ j ] = sin( j * PI / L );
+    }
+  
 
   /* All set up so now solve the equations at each time step*/
 
   /* Start of the parallel region - make sure that you enclose all the parallel
      stuff in braces !! */
-#pragma omp parallel default( none ) private( t, j, du_loc ) shared( n, n_time_steps, nu, u, uo, du )
-  {
 
     /* Time loop */
     for (t=0; t<n_time_steps; t++) {
@@ -131,26 +147,37 @@ int main( void ) {
 #ifdef _OPENMP
       if( omp_get_thread_num() == 0 ) {
 #endif
-	if( t%10 == 0 || t == n_time_steps - 1 )
-	  printf( "At timestep %5i the maxmimum change in the solution is %-#14.8g\n",
-		  t, du );
+	if( t%10 == 0 || t == n_time_steps - 1 ) {
+	  //printf( "At timestep %5i the maxmimum change in the solution is %-#14.8g\n", t, du );
+        }
 #ifdef _OPENMP
       }
 #endif
 	
     }
 
-  }
+#pragma omp barrier  
 
   /* Check the solution against the exact, analytic answer */
-  rms = 0.0;
   /* ... */
+
+#pragma omp for reduction( +:rms )
     for (j=1; j<n-1; j++) {
       du = u[ j ] - sin( j * PI / L ) *  exp( - n_time_steps * nu * PI * PI / ( L * L ) );
       rms += du*du;
     }
+  }
   printf( "The RMS error in the final solution is %-#14.8g\n", sqrt(rms/((double) n)) );
 
+  //end_time
+  time_end = omp_get_wtime ( );
+
+  //
+  // ----- print sum
+  //
+  printf(" number of threads = %d \n", num_threads);
+  printf(" process time      = %e s\n", time_end - time_start);
+	
   return EXIT_SUCCESS;
 
 }
