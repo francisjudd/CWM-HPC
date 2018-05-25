@@ -87,7 +87,20 @@ __global__ void hello2( void )
 
 // write your kernel here
 
-
+__global__ void hello3( void )
+{
+  int warpId;
+  int index = blockDim.x * blockIdx.x + threadIdx.x;
+  if( threadIdx.x%32==0 ) 
+  {
+    warpId = threadIdx.x/32;
+    printf("Hello world from block %d, warp %d! (Index %d)\n",blockIdx.x,warpId,index);
+  }
+   
+  //printf("index: %d T: [%d, %d, %d]\t B: [%d, %d, %d]\n", index, \
+                                                        threadIdx.x, threadIdx.y, threadIdx.z, \
+                                                        blockIdx.x, blockIdx.y, blockIdx.z);	
+}
 
 //----------------------------------------------------------------------
 
@@ -117,10 +130,10 @@ int main(void) {
   
   // put your code here
   
-  //dim3 Gd(1, 10, 1);
-  //dim3 Bd(1, 2, 1);
+  /*dim3 Gd(1, 10, 1);
+  dim3 Bd(1, 2, 1);
 
-  //hello1<<< Gd, Bd >>>();
+  hello1<<< Gd, Bd >>>();*/
   
   //----------------------------------------------------------------------
 
@@ -139,10 +152,10 @@ int main(void) {
   
   //----------------------------------------------------------------------
   
-  dim3 Gd = (2, 3, 1);
-  dim3 Bd = (2, 2, 3);
+  /*dim3 Gd(5, 1, 1);
+  dim3 Bd(10, 1, 1);
 
-  hello2<<< Gd, Bd >>>();
+  hello2<<< Gd, Bd >>>();*/
 
   
   //----------------------------------------------------------------------
@@ -160,6 +173,11 @@ int main(void) {
   
   // put your code here
   
+  dim3 Gd(5, 1, 1);
+  dim3 Bd(320, 1, 1);
+
+  hello3<<< Gd, Bd >>>();
+
   //----------------------------------------------------------------------
   
   cudaDeviceReset();
